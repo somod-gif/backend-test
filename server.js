@@ -8,10 +8,7 @@ dotenv.config();
 
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB Connected'))
   .catch((err) => {
     console.error('Error connecting to MongoDB:', err.message);
@@ -20,8 +17,14 @@ mongoose
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+  origin: 'https://frontend-test-run.vercel.app', // Your frontend domain
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+};
+
+app.use(cors(corsOptions)); // Apply CORS configuration
 app.use(express.json());
 
 // Define a schema and model
@@ -36,7 +39,8 @@ const formSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Form = mongoose.model('Form', formSchema);
+const Form = mongoose.model('Form', formSchema, 'forms'); // Explicitly set collection name
+
 
 // Routes
 app.post('/api/save', async (req, res) => {
@@ -49,6 +53,11 @@ app.post('/api/save', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error saving form data', error: error.message });
   }
+});
+
+// Simple GET route for testing
+app.get('/', (req, res) => {
+  res.send('Server is running on port');
 });
 
 // Start the server
