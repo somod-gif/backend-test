@@ -9,7 +9,7 @@ const app = express();
 
 // Enable CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*', // Allow frontend URL from .env
+  origin: process.env.FRONTEND_URL || 'https://frontend-test-run.vercel.app/', // Allow frontend URL from .env
   methods: ['GET', 'POST'],
   credentials: true,
 }));
