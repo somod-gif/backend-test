@@ -14,8 +14,6 @@ app.use(cors({
   allowedHeaders: ["Content-Type"]
 }));
 
-
-
 // Middleware
 app.use(express.json());
 
@@ -26,9 +24,18 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+// Increased connection timeout for MongoDB
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,  // Timeout after 5 seconds
+  socketTimeoutMS: 10000          // Timeout for socket operations after 10 seconds
+})
   .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch(error => console.error('❌ MongoDB Connection Error:', error.message));
+  .catch(error => {
+    console.error('❌ MongoDB Connection Error:', error.message);
+    process.exit(1);  // Exit process on connection failure
+  });
 
 // Mongoose Schema and Model
 const formSchema = new mongoose.Schema({
@@ -59,7 +66,7 @@ app.post('/api/save', async (req, res) => {
 // Retrieve all form data
 app.get('/api/forms', async (req, res) => {
   try {
-    const forms = await Form.find();
+    const forms = await Form.find().exec();  // Using .exec() to ensure proper query execution
     res.status(200).json(forms);
   } catch (error) {
     console.error('❌ Error retrieving form data:', error);
