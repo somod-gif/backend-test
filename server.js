@@ -9,10 +9,12 @@ const app = express();
 
 // Enable CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'https://frontend-test-run.vercel.app/', // Allow frontend URL from .env
-  methods: ['GET', 'POST'],
-  credentials: true,
+  origin: ["https://frontend-test-run.vercel.app"], // Allow only your frontend
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
 }));
+
+
 
 // Middleware
 app.use(express.json());
@@ -44,6 +46,7 @@ const Form = mongoose.model('Form', formSchema);
 // Save form data
 app.post('/api/save', async (req, res) => {
   try {
+    console.log('📥 Received data:', req.body); // Debugging log
     const formData = new Form(req.body);
     await formData.save();
     res.status(201).json({ message: '✅ Form submitted successfully!' });
